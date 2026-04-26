@@ -12,7 +12,7 @@
 
 <body>
 
-  <!-- ======= HEADER ======= -->
+
   <header class="site-header">
     <div class="header-inner">
       <div class="header-brand">
@@ -26,10 +26,10 @@
     </div>
   </header>
 
-  <!-- ======= MAIN CONTENT ======= -->
+
   <main class="main-content">
 
-    <!-- FILTER BAR -->
+
     <section class="filter-bar" aria-label="Suodattimet">
       <div class="filter-group">
         <label class="filter-label" for="filter-city">Kaupunki</label>
@@ -49,10 +49,10 @@
       </div>
     </section>
 
-    <!-- STATUS / LOADING -->
+
     <p id="loading-msg" class="loading-msg" role="status" aria-live="polite">Ladataan ravintoloita…</p>
 
-    <!-- RESTAURANT TABLE -->
+
     <div class="table-wrapper">
       <table id="target" aria-label="Ravintolalista">
         <thead>
@@ -64,39 +64,38 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Ravintolarivit lisätään JS:llä -->
         </tbody>
       </table>
     </div>
 
   </main>
 
-  <!-- ======= FOOTER ======= -->
+
   <footer class="site-footer">
     <p>TX00EY23 Web-sovelluskehitys &mdash; Yksilötehtävä &copy; 2025</p>
   </footer>
 
-  <!-- ======= RESTAURANT MODAL ======= -->
+
   <dialog id="modal" aria-modal="true" aria-labelledby="modal-restaurant-name">
-    <!-- Sisältö lisätään JS:llä -->
+
   </dialog>
 
-  <!-- ======= LOGIN MODAL ======= -->
+
   <dialog id="modal-auth" aria-modal="true" aria-labelledby="auth-modal-title">
     <div class="auth-modal-inner">
 
-    <!-- Close row -->
+
     <div class="auth-close-row">
       <button type="button" class="close-modal close-modal--auth" aria-label="Sulje">&#x2715;</button>
     </div>
 
-    <!-- Tabs -->
+
     <div class="auth-tabs" role="tablist">
       <button type="button" class="auth-tab auth-tab--active" id="tab-login" role="tab" aria-selected="true" aria-controls="panel-login">Kirjaudu</button>
       <button type="button" class="auth-tab" id="tab-register" role="tab" aria-selected="false" aria-controls="panel-register">Rekisteröidy</button>
     </div>
 
-    <!-- Login panel -->
+
     <div id="panel-login" class="auth-panel" role="tabpanel" aria-labelledby="tab-login">
       <h2 id="auth-modal-title" class="auth-title">Kirjaudu sisään</h2>
       <form id="form-login" class="auth-form" novalidate>
@@ -113,7 +112,7 @@
       </form>
     </div>
 
-    <!-- Register panel -->
+
     <div id="panel-register" class="auth-panel auth-panel--hidden" role="tabpanel" aria-labelledby="tab-register">
       <h2 class="auth-title">Luo tili</h2>
       <form id="form-register" class="auth-form" novalidate>
@@ -134,7 +133,7 @@
       </form>
     </div>
 
-    </div><!-- /.auth-modal-inner -->
+    </div>
   </dialog>
 
 </body>

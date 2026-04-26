@@ -1,170 +1,276 @@
-'use strict';
+"use strict";
 
-const apiUrl = 'https://media2.edu.metropolia.fi/restaurant/api/v1';
+const API_BASE = 'https://media2.edu.metropolia.fi/restaurant/api/v1';
 
-// your code here
-const taulukko = document.querySelector('#target');
+const target = document.querySelector('#target');
 const modal = document.querySelector('#modal');
 
-// ── Auth modal ──────────────────────────────────────────
-const modalAuth   = document.querySelector('#modal-auth');
-const btnLogin    = document.querySelector('#btn-show-login');
-const btnRegister = document.querySelector('#btn-show-register');
-const tabLogin    = document.querySelector('#tab-login');
+const modalAuth = document.querySelector('#modal-auth');
+const btnLogin = document.querySelector('#btn-show-login');
+
+const tabLogin = document.querySelector('#tab-login');
 const tabRegister = document.querySelector('#tab-register');
-const panelLogin  = document.querySelector('#panel-login');
-const panelReg    = document.querySelector('#panel-register');
+const panelLogin = document.querySelector('#panel-login');
+const panelRegister = document.querySelector('#panel-register');
+
+
+const USERS_KEY = 'users';
+const CURRENT_USER_KEY = 'currentUser';
+
+const getUsers = () => JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+const saveUsers = (users) =>
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+const getCurrentUser = () =>
+  JSON.parse(localStorage.getItem(CURRENT_USER_KEY));
+
+
+const escapeHtml = (value) =>
+  String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+
 
 const switchTab = (toLogin) => {
-  tabLogin.classList.toggle('auth-tab--active',  toLogin);
-  tabRegister.classList.toggle('auth-tab--active', !toLogin);
-  tabLogin.setAttribute('aria-selected', toLogin);
-  tabRegister.setAttribute('aria-selected', !toLogin);
-  panelLogin.classList.toggle('auth-panel--hidden',  !toLogin);
-  panelReg.classList.toggle('auth-panel--hidden', toLogin);
-};
+  tabLogin?.classList.toggle('auth-tab--active', toLogin);
+  tabRegister?.classList.toggle('auth-tab--active', !toLogin);
 
-btnLogin.addEventListener('click', () => {
-  switchTab(true);
-  modalAuth.showModal();
-});
-btnRegister.addEventListener('click', () => {
-  switchTab(false);
-  modalAuth.showModal();
-});
-tabLogin.addEventListener('click',    () => switchTab(true));
-tabRegister.addEventListener('click', () => switchTab(false));
-
-// Close auth modal when clicking X or backdrop
-modalAuth.addEventListener('click', (e) => {
-  if (e.target.matches('.close-modal--auth') || e.target === modalAuth) {
-    modalAuth.close();
-  }
-});
-// ────────────────────────────────────────────────────────
-
-// Handle close clicks for dynamically rendered modal content.
-modal.addEventListener('click', (event) => {
-  if (event.target.matches('.close-modal')) {
-    modal.close();
-  }
-});
-
-const haeRavintolat = async () => {
-  try {
-    // eslint-disable-next-line no-undef
-    return await fetchData(apiUrl + '/restaurants');
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-const haePaivanMenu = async (id, lang) => {
-  try {
-    // eslint-disable-next-line no-undef
-    return await fetchData(apiUrl + `/restaurants/daily/${id}/${lang}`);
-  } catch (error) {
-    console.error(error);
-  }
-};
-
-// eslint-disable-next-line no-unused-vars
-const haeViikonMenu = async (id, lang) => {
-  try {
-    // eslint-disable-next-line no-undef
-    return await fetchData(apiUrl + `/restaurants/weekly/${id}/${lang}`);
-  } catch (error) {
-    console.error(error);
-  }
+  panelLogin?.classList.toggle('auth-panel--hidden', !toLogin);
+  panelRegister?.classList.toggle('auth-panel--hidden', toLogin);
 };
 
 
-const teeMenuHTML = (courses) => {
-  let html = '';
-  for (const course of courses) {
-    const {name, price, diets} = course;
-    html += `
-    <article class="course">
-      <p><strong>${name || 'Ei ilmoitettu'}</strong></p>
-      <p>Hinta: ${price || 'Ei ilmoitettu'}</p>
-      <p>Allergeenit: ${diets.reduce((allergeenit, diet) => {
-      let ikoni;
-      switch (diet) {
-        case 'G':  ikoni = '&#127806;&#128683;'; break;
-        case 'A':  ikoni = '&#127828;'; break;
-        default:   ikoni = '&#127786;'; break;
-      }
-      return allergeenit ? allergeenit + ' | ' + ikoni : ikoni;
-    }, '')}</p>
-    </article>
-    `;
+const setupAuth = () => {
+  const registerForm = panelRegister?.querySelector('form');
+  const loginForm = panelLogin?.querySelector('form');
+
+
+  registerForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = registerForm.querySelector('input[type="email"]').value;
+    const password = registerForm.querySelector('input[type="password"]').value;
+
+    const users = getUsers();
+
+    if (users.find((u) => u.email === email)) {
+      alert('User already exists');
+      return;
+    }
+
+    users.push({ email, password });
+    saveUsers(users);
+
+    alert('Registered! You can now log in.');
+    switchTab(true);
+  });
+
+
+  loginForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const email = loginForm.querySelector('input[type="email"]').value;
+    const password = loginForm.querySelector('input[type="password"]').value;
+
+    const users = getUsers();
+
+    const user = users.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (!user) {
+      alert('Wrong email or password');
+      return;
+    }
+
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+
+    alert('Logged in!');
+    modalAuth?.close();
+    updateAuthUI();
+  });
+};
+
+// ================== AUTH UI ==================
+const updateAuthUI = () => {
+  const user = getCurrentUser();
+
+  if (!btnLogin) return;
+
+  if (user) {
+    btnLogin.textContent = `Logout (${user.email})`;
+
+    btnLogin.onclick = () => {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      updateAuthUI();
+    };
+  } else {
+    btnLogin.textContent = 'Login';
+
+    btnLogin.onclick = () => {
+      switchTab(true);
+      modalAuth?.showModal();
+    };
   }
-  return html;
+};
+
+const setupAuthModal = () => {
+  btnLogin?.addEventListener('click', () => {
+    if (!getCurrentUser()) {
+      switchTab(true);
+      modalAuth?.showModal();
+    }
+  });
+
+  tabLogin?.addEventListener('click', () => switchTab(true));
+  tabRegister?.addEventListener('click', () => switchTab(false));
+
+  modalAuth?.addEventListener('click', (e) => {
+    if (e.target === modalAuth || e.target.matches('.close-modal--auth')) {
+      modalAuth.close();
+    }
+  });
+};
+
+const setupRestaurantModal = () => {
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal || e.target.matches('.close-modal')) {
+      modal.close();
+    }
+  });
+};
+
+
+const apiGet = async (url) => {
+  if (typeof fetchData !== 'function') {
+    throw new Error('fetchData is not loaded');
+  }
+  return fetchData(url);
+};
+
+const getRestaurants = async () => {
+  const data = await apiGet(`${API_BASE}/restaurants`);
+  console.log('API response:', data);
+
+  return data?.data || data?.results || data || [];
+};
+
+const getDailyMenu = async (id, lang = 'fi') => {
+  return apiGet(`${API_BASE}/restaurants/daily/${id}/${lang}`);
 };
 
 
 const restaurantRow = (restaurant) => {
-  const {name, address, city, company} = restaurant;
   const tr = document.createElement('tr');
-  // nimisolu
+
   const nameTd = document.createElement('td');
-  nameTd.innerText = name;
-  // osoitesolu
+  nameTd.textContent = restaurant?.name ?? '';
+
   const addressTd = document.createElement('td');
-  addressTd.innerText = address;
-  // kaupunkisolu
+  addressTd.textContent = restaurant?.address ?? restaurant?.street_address ?? '';
+
   const cityTd = document.createElement('td');
-  cityTd.innerText = city;
-  // firmasolu
-  const firmaTd = document.createElement('td');
-  firmaTd.innerText = company;
-  // lisätään solut riviin
-  tr.append(nameTd, addressTd, cityTd, firmaTd);
+  cityTd.textContent = restaurant?.city ?? restaurant?.municipality ?? '';
+
+  const companyTd = document.createElement('td');
+  companyTd.textContent = restaurant?.company ?? restaurant?.provider ?? '';
+
+  tr.append(nameTd, addressTd, cityTd, companyTd);
   return tr;
 };
 
-const restaurantModal = (restaurant, menu) => {
-  const menuHTML = teeMenuHTML(menu?.courses || []);
+const menuHtml = (menu) => {
+  const courses = Array.isArray(menu?.courses) ? menu.courses : [];
+  if (courses.length === 0) return '<p>Ei ruokalistaa saatavilla.</p>';
 
-  return `
-    <button type="button" class="close-modal" aria-label="Sulje">X</button>
-    <h3>${restaurant.name}</h3>
-    ${menuHTML}
-  `;
+  return courses
+    .map((course) => {
+      const name = escapeHtml(course?.name || 'Ei ilmoitettu');
+      const price = escapeHtml(course?.price || 'Ei ilmoitettu');
+      return `<article class="course"><p><strong>${name}</strong></p><p>Hinta: ${price}</p></article>`;
+    })
+    .join('');
 };
 
+const restaurantModalHtml = (restaurant, menu) => `
+ <button type="button" class="close-modal">X</button>
+ <h3>${escapeHtml(restaurant?.name ?? 'Ravintola')}</h3>
+ ${menuHtml(menu)}
+`;
 
-(async () => {
-  const restaurants = await haeRavintolat();
-  // restaurants aakkosjärjestykseen
+
+const init = async () => {
+  setupAuthModal();
+  setupRestaurantModal();
+  setupAuth();
+  updateAuthUI();
+
+  if (!target || !modal) return;
+
+  const container =
+    target.tagName === 'TBODY' ? target : target.querySelector('tbody') || target;
+
+  let restaurants = [];
+
+  try {
+    restaurants = await getRestaurants();
+  } catch (error) {
+    console.error(error);
+
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = 'Cannot connect to API.';
+    tr.append(td);
+    container.append(tr);
+    return;
+  }
+
   restaurants.sort((a, b) =>
-    a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1
+    (a?.name ?? '').localeCompare(b?.name ?? '', 'fi', { sensitivity: 'base' })
   );
 
+  if (restaurants.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    td.textContent = 'No restaurants found.';
+    tr.append(td);
+    container.append(tr);
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+
   for (const restaurant of restaurants) {
-    // rivi
     const tr = restaurantRow(restaurant);
 
     tr.addEventListener('click', async () => {
-
-      for (const elem of document.querySelectorAll('.highlight')) {
-        elem.classList.remove('highlight');
-      }
-
+      document.querySelectorAll('.highlight').forEach((el) =>
+        el.classList.remove('highlight')
+      );
       tr.classList.add('highlight');
 
-      // tyhjennä modal
-      modal.innerHTML = '';
-      // avaa modal
+      modal.innerHTML = '<p>Loading menu...</p>';
       modal.showModal();
 
-      const pMenu = await haePaivanMenu(restaurant._id, 'fi');
+      let menu = null;
 
-      const modalHTML = restaurantModal(restaurant, pMenu);
+      try {
+        menu = await getDailyMenu(restaurant?.id || restaurant?._id, 'fi');
+      } catch (error) {
+        console.error(error);
+      }
 
-      modal.insertAdjacentHTML('beforeend', modalHTML);
+      modal.innerHTML = restaurantModalHtml(restaurant, menu);
     });
 
-    taulukko.append(tr);
+    frag.append(tr);
   }
-})();
+
+  container.append(frag);
+};
+
+document.addEventListener('DOMContentLoaded', init);

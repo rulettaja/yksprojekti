@@ -1,7 +1,7 @@
-/* ── Reset ─────────────────────────────────────────── */
+
 *, *::before, *::after { box-sizing: border-box; }
 
-/* ── Tokens ─────────────────────────────────────────── */
+
 :root {
   --bg:          #f6f6f4;
   --surface:     #ffffff;
@@ -20,7 +20,7 @@
   --transition:  150ms ease;
 }
 
-/* ── Base ───────────────────────────────────────────── */
+
 body {
   background: linear-gradient(180deg, #f6f6f4 0%, #f0efec 100%);
   color: var(--text);
@@ -31,7 +31,6 @@ body {
   flex-direction: column;
 }
 
-/* ── Header ─────────────────────────────────────────── */
 .site-header {
   background: var(--header-bg);
   color: var(--header-fg);
@@ -69,7 +68,6 @@ body {
 .nav-btn--primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .nav-btn--primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
 
-/* ── Main ───────────────────────────────────────────── */
 .main-content {
   flex: 1;
   margin: 0 auto;
@@ -78,7 +76,7 @@ body {
   width: 100%;
 }
 
-/* ── Table ──────────────────────────────────────────── */
+
 h1 {
   letter-spacing: 0.02em;
   margin: 2.5rem auto 1rem;
@@ -168,7 +166,7 @@ dialog#modal h3 {
   color: #2c2018;
 }
 
-/* ── Auth modal ─────────────────────────────────────── */
+
 dialog#modal-auth {
   border: none;
   border-radius: var(--radius-lg);
@@ -183,13 +181,13 @@ dialog#modal-auth::backdrop {
   background: rgba(28,25,20,.55);
 }
 
-/* ── Auth inner layout ──────────────────────────────── */
+
 .auth-modal-inner {
   display: flex;
   flex-direction: column;
 }
 
-/* Close row */
+
 .auth-close-row {
   display: flex;
   justify-content: flex-end;
@@ -212,7 +210,6 @@ dialog#modal-auth::backdrop {
 }
 .close-modal:hover { background: #2f2c27; color: #fff; border-color: #2f2c27; }
 
-/* Tabs */
 .auth-tabs {
   border-bottom: 2px solid var(--border);
   display: flex;
@@ -238,7 +235,7 @@ dialog#modal-auth::backdrop {
   font-weight: bold;
 }
 
-/* Panels */
+
 .auth-panel         { padding: 1.4rem 1.75rem 1.9rem; }
 .auth-panel--hidden { display: none; }
 
@@ -247,7 +244,7 @@ dialog#modal-auth::backdrop {
   margin: 0 0 1.3rem;
 }
 
-/* Form */
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -294,7 +291,7 @@ dialog#modal-auth::backdrop {
   padding: .5rem .85rem;
 }
 
-/* Submit button */
+
 .btn-primary {
   background: var(--accent);
   border: none;
@@ -310,7 +307,7 @@ dialog#modal-auth::backdrop {
 }
 .btn-primary:hover { background: var(--accent-dark); }
 
-/* ── Footer ─────────────────────────────────────────── */
+
 .site-footer {
   background: var(--header-bg);
   color: rgba(245,240,232,.45);
@@ -320,7 +317,7 @@ dialog#modal-auth::backdrop {
 }
 .site-footer p { margin: 0; }
 
-/* ── Responsive ─────────────────────────────────────── */
+
 @media (max-width: 600px) {
   .header-title { font-size: .97rem; }
   .main-content { padding: 1.25rem 1rem 2rem; }

@@ -1,10 +1,21 @@
-// eslint-disable-next-line no-unused-vars
-const fetchData = async (url, options) => {
-  const data = await fetch(url, options);
+// Global helper for browser scripts// eslint-disable-next-line no-unused-varsconst fetchData = async (url, options = {}) => {
+let response;
 
-  if (!data.ok) {
-    throw new Error(data.statusText);
-  }
+try {
+  response = await fetch(url, {
+    headers: {
+      Accept: 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+} catch (error) {
+  throw new Error('Network error');
+}
 
-  return await data.json();
+if (!response.ok) {
+  throw new Error(`HTTP ${response.status}`);
+}
+
+return response.json();
 };
